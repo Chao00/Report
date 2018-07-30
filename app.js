@@ -7,7 +7,7 @@ var logger = require('morgan');
 var bodyParser = require('body-parser');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var policyReport = require('./routes/policyReport');
+var policyFailureReport = require('./routes/policyFailure');
 var email = require('./routes/email');
 
 var app = express();
@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/policyReport',policyReport);
+app.use('/policyFailure',policyFailureReport);
 app.use('/email',email);
 
 // catch 404 and forward to error handler

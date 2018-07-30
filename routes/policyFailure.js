@@ -14,7 +14,7 @@ sgMail.setApiKey(config.API_KEY);
 router.get('/', function (req, res, next) {
 
     var startDate = req.query.from;
-    var endDate = req.query.end;
+    var endDate = req.query.to;
 
     var myUrl = new URL("https://blue-sellapi.tugo.com/monitor/api/list/report?fromTime=&toTime=");
 
@@ -50,12 +50,14 @@ router.get('/', function (req, res, next) {
 
             // request(options).pipe(res);
 
-           request(options).on('response',function (response) {
-               // console.log(response.content)
-               // sendEmail(response)
-           }).on('error',function (err) {
+           request(options)
+           //     .on('response',function (response) {
+           //     // console.log(response.content)
+           //     // sendEmail(response)
+           // })
+               .on('error',function (err) {
                console.log(err.message);
-           }).pipe(fs.createWriteStream('policy failure.xlsx'),sendEmail());
+           }).pipe(fs.createWriteStream('policy failure.xlsx'),sendEmail(startDate,endDate));
 
            console.log("finish write in file!!");
 
@@ -66,18 +68,18 @@ router.get('/', function (req, res, next) {
 
 });
 
-function sendEmail (){
+function sendEmail (start,end){
     var data = fs.readFileSync('./policy failure.xlsx');
     console.log(data);
     const msg = {
         to: 'czha@tugo.com',
         from: 'test@tugo.com',
-        subject: 'Policy transfer failure report',
-        text: 'lalalallalala',
+        subject: 'Policy transfer failure report '+ 'from '+ start + ' to ' + end,
+        text: 'Policy transfer failure',
         attachments:[
             {
                 content: new Buffer(data).toString('base64'),
-                filename: 'Policy transfer failure.xlsx',
+                filename: 'Policy transfer failure ' + start + ' to ' + end + '.xlsx',
                 type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 disposition: 'attachment'
             }
