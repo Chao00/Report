@@ -4,7 +4,7 @@ var request = require('request');
 var rp = require('request-promise');
 const sgMail = require('@sendgrid/mail');
 var fs = require('fs');
-var url = require('url');
+var  URL = require('url').URL;
 
 var config = JSON.parse(fs.readFileSync("config.json"));
 
@@ -13,23 +13,22 @@ sgMail.setApiKey(config.API_KEY);
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 
-    // var startDate = req.query.from;
-    // var endDate = req.query.end;
-    //
-    // var adr = 'https://blue-sellapi.tugo.com/monitor/api/list/report?fromTime=2008-08-06&toTime=2009-08-08';
-    // var myUrl = url.parse(adr,true);
-    //
-    //
-    // console.log(myUrl.query.fromTime);
-    // console.log(myUrl.query.toTime);
-    // console.log(myUrl.search);
+    var startDate = req.query.from;
+    var endDate = req.query.end;
 
-//
+    var myUrl = new URL("https://blue-sellapi.tugo.com/monitor/api/list/report?fromTime=&toTime=");
+
+    console.log(myUrl.href);
+    myUrl.searchParams.set('fromTime',startDate);
+    myUrl.searchParams.set('toTime',endDate);
+    console.log(myUrl.href);
+
+
 //todo make the data range dynamic
 
     const external = {
         method: 'GET',
-        url: 'https://blue-sellapi.tugo.com/monitor/api/list/report?fromTime=2018-05-01&toTime=2018-05-03',
+        url: myUrl,
         json: true
     };
     console.log(external.url);
