@@ -4,6 +4,7 @@ var request = require('request');
 var rp = require('request-promise');
 const sgMail = require('@sendgrid/mail');
 var fs = require('fs');
+var url = require('url');
 
 var config = JSON.parse(fs.readFileSync("config.json"));
 
@@ -12,34 +13,33 @@ sgMail.setApiKey(config.API_KEY);
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 
-    // res.render('policyReport', { title: 'Start generating report for policy transfer failures' });
+    // var startDate = req.query.from;
+    // var endDate = req.query.end;
+    //
+    // var adr = 'https://blue-sellapi.tugo.com/monitor/api/list/report?fromTime=2008-08-06&toTime=2009-08-08';
+    // var myUrl = url.parse(adr,true);
+    //
+    //
+    // console.log(myUrl.query.fromTime);
+    // console.log(myUrl.query.toTime);
+    // console.log(myUrl.search);
 
-    // var jsonBody = {
-    //     "content": [  {
-    //         "id": "TMI3203071",
-    //         "partnerId": "BCA075",
-    //         "type": "P2V-POLICY-TRANSFER-STATUS",
-    //         "status": 400,
-    //         "error": "Error + Renew policy TMI3203071-2, however cannot find the corresponding source policy TMI3203071-1.. "
-    //     }]};
-
-//     var startDate = req.query.from;
-//     var endDate = req.query.end;
 //
-// //todo make the data range dynamic
+//todo make the data range dynamic
 
     const external = {
         method: 'GET',
-        url: 'https://blue-sellapi.tugo.com/monitor/api/list/report?fromTime=2018-05-01&toTime=2018-05-02',
+        url: 'https://blue-sellapi.tugo.com/monitor/api/list/report?fromTime=2018-05-01&toTime=2018-05-03',
         json: true
     };
+    console.log(external.url);
 
     rp(external)
         .then(function (response) {
             // console.log(response)
             var data = {
                 template: {
-                    'shortid': 'HkE-q8AQQ'
+                    'shortid': 'SJ0vnAh4X'
                 },
                 data: response
             };
@@ -50,29 +50,30 @@ router.get('/', function (req, res, next) {
             };
 
             // request(options).pipe(res);
+
            request(options).on('response',function (response) {
                // console.log(response.content)
                // sendEmail(response)
            }).on('error',function (err) {
                console.log(err.message);
-           }).pipe(res);
+           }).pipe(fs.createWriteStream('policy failure.xlsx'),sendEmail());
+
+           console.log("finish write in file!!");
 
         })
         .catch(function (error) {
             console.log(error)
         })
 
-    sendEmail();
-
 });
 
 function sendEmail (){
-    var data = fs.readFileSync('./Policy transfer failure (3).xlsx');
-    // console.log(data);
+    var data = fs.readFileSync('./policy failure.xlsx');
+    console.log(data);
     const msg = {
         to: 'czha@tugo.com',
         from: 'test@tugo.com',
-        subject: 'Sending with SendGrid is Fun',
+        subject: 'Policy transfer failure report',
         text: 'lalalallalala',
         attachments:[
             {
@@ -86,7 +87,7 @@ function sendEmail (){
     sgMail.send(msg,function (err) {
         if (err){
             console.log(err);
-        }console.log("sent")
+        }console.log("Email sent")
 
     });
 
