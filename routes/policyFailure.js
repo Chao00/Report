@@ -4,7 +4,7 @@ var request = require('request');
 var rp = require('request-promise');
 const sgMail = require('@sendgrid/mail');
 var fs = require('fs');
-var  URL = require('url').URL;
+var URL = require('url').URL;
 
 var config = JSON.parse(fs.readFileSync("config.json"));
 
@@ -19,8 +19,8 @@ router.get('/', function (req, res, next) {
     var myUrl = new URL("https://blue-sellapi.tugo.com/monitor/api/list/report?fromTime=&toTime=");
 
     console.log(myUrl.href);
-    myUrl.searchParams.set('fromTime',startDate);
-    myUrl.searchParams.set('toTime',endDate);
+    myUrl.searchParams.set('fromTime', startDate);
+    myUrl.searchParams.set('toTime', endDate);
     console.log(myUrl.href);
 
 
@@ -38,28 +38,27 @@ router.get('/', function (req, res, next) {
             // console.log(response)
             var data = {
                 template: {
-                    'shortid': 'SJ0vnAh4X'
+                    'shortid': 'H1qYYGCE7'
                 },
                 data: response
             };
+
             var options = {
                 url: 'http://localhost:8001/api/report',
                 method: 'POST',
                 json: data
             };
 
-            // request(options).pipe(res);
+            request(options)
+                .pipe(fs.createWriteStream('policy failure.xlsx')).on('finish', function () {
+                sendEmail(startDate, endDate);
+            })
+                .on('error', function (err) {
+                    console.log(err.message);
+                });
 
-           request(options)
-           //     .on('response',function (response) {
-           //     // console.log(response.content)
-           //     // sendEmail(response)
-           // })
-               .on('error',function (err) {
-               console.log(err.message);
-           }).pipe(fs.createWriteStream('policy failure.xlsx'),sendEmail(startDate,endDate));
 
-           console.log("finish write in file!!");
+            console.log("finish write in file!!");
 
         })
         .catch(function (error) {
@@ -68,15 +67,15 @@ router.get('/', function (req, res, next) {
 
 });
 
-function sendEmail (start,end){
+function sendEmail(start, end) {
     var data = fs.readFileSync('./policy failure.xlsx');
-    console.log(data);
+
     const msg = {
         to: 'czha@tugo.com',
         from: 'test@tugo.com',
-        subject: 'Policy transfer failure report '+ 'from '+ start + ' to ' + end,
+        subject: 'Policy transfer failure report ' + 'from ' + start + ' to ' + end,
         text: 'Policy transfer failure',
-        attachments:[
+        attachments: [
             {
                 content: new Buffer(data).toString('base64'),
                 filename: 'Policy transfer failure ' + start + ' to ' + end + '.xlsx',
@@ -85,10 +84,11 @@ function sendEmail (start,end){
             }
         ]
     };
-    sgMail.send(msg,function (err) {
-        if (err){
+    sgMail.send(msg, function (err) {
+        if (err) {
             console.log(err);
-        }console.log("Email sent")
+        }
+        console.log("Email sent")
 
     });
 
