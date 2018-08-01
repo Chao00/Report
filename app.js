@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var policyFailureReport = require('./routes/policyFailure');
 var email = require('./routes/email');
+var missingProduct = require('./routes/missingProduct');
 
 var app = express();
 
@@ -30,6 +31,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/policyFailure',policyFailureReport);
 app.use('/email',email);
+app.use('/missingProduct',missingProduct);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
