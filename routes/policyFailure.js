@@ -74,8 +74,8 @@ router.get('/', function (req, res, next) {
     const msg = {
         to: 'czha@tugo.com',
         from: 'test@tugo.com',
-        subject: 'Policy transfer failure report ' + 'from ' + start + ' to ' + end,
-        text: 'Policy transfer failure',
+        subject: 'Policy transfer failures report from ' + start + ' to ' + end,
+        text: 'The attachment contains policy transfer failures for both sides from ' + start + ' to ' + end,
         attachments: [
             {
                 content: new Buffer(data).toString('base64'),

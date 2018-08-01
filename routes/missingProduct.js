@@ -43,7 +43,7 @@ router.get('/', function (req, res, next) {
 
             var data = {
                 template: {
-                    'shortid': 'ry8KRP0NQ'
+                    'shortid': 'ryHCxOJSQ'
                 },
                 data: finalResult
             };
@@ -57,7 +57,7 @@ router.get('/', function (req, res, next) {
             request(options)
                 .pipe(fs.createWriteStream('missing product setup in Atlas.xlsx')).on('finish', function () {
                 sendEmail(startDate, endDate);
-                res.render('missingProduct', { title: 'Missing product setup in Atlas from ' + startDate + ' to ' + endDate + " send out" });
+                res.render('missingProduct', { title: 'Missing products setup in Atlas from ' + startDate + ' to ' + endDate + " send out" });
             })
                 .on('error', function (err) {
                     console.log(err.message);
@@ -80,8 +80,8 @@ function sendEmail(start, end) {
     const msg = {
         to: 'czha@tugo.com',
         from: 'test@tugo.com',
-        subject: 'Missing product setup in Atlas ' + 'from ' + start + ' to ' + end,
-        text: 'Missing product setup in Atlas',
+        subject: 'Missing product setup in Atlas from ' + start + ' to ' + end,
+        text: 'The attachment contains missing products setup in Atlas from ' + start + ' to ' + end,
         attachments: [
             {
                 content: new Buffer(data).toString('base64'),
