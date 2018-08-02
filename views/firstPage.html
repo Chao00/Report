@@ -1,0 +1,26 @@
+<link rel="stylesheet" href="/stylesheets/firstPage.css">
+
+<div class="login">
+    <h1>Policy transfer report</h1>
+    <form method="post">
+        <input type="Email" name="u" placeholder="Email" required="required"/>
+
+
+        <label for="from">From</label>
+        <input type="date" name="from" id="from" required="required"/>
+
+
+        <label for="to">To</label>
+        <input type="date" name="to" id="to" required="required"/>
+
+        <p>
+            <select name="p">
+                <option>Please select one</option>
+                <option>P2V policy transfer</option>
+                <option>V2P policy transfer</option>
+            </select>
+        </p>
+
+        <button type="submit" class="btn btn-primary btn-block btn-large">Generate report</button>
+    </form>
+</div>

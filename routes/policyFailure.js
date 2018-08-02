@@ -38,7 +38,7 @@ router.get('/', function (req, res, next) {
 
             var data = {
                 template: {
-                    'shortid': 'BJqsE80E7'
+                    'shortid': 'BJFAdngHm'
                 },
                 data: response
             };
@@ -72,7 +72,7 @@ router.get('/', function (req, res, next) {
     var data = fs.readFileSync('./policy failure.xlsx');
 
     const msg = {
-        to: 'czha@tugo.com',
+        to: 'mliu@tugo.com',
         from: 'test@tugo.com',
         subject: 'Policy transfer failures report from ' + start + ' to ' + end,
         text: 'The attachment contains policy transfer failures for both sides from ' + start + ' to ' + end,
