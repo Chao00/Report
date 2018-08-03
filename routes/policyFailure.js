@@ -13,8 +13,20 @@ sgMail.setApiKey(config.API_KEY);
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 
-    var startDate = req.query.from;
-    var endDate = req.query.to;
+    res.render('firstPage');
+//     res.render('finishPage')
+
+});
+
+router.post('/',function (req, res, next) {
+    console.log(req.body.Email);
+    console.log(req.body.from);
+    console.log(req.body.to);
+    console.log(req.body.options);
+
+    var startDate = req.body.from;
+    var endDate = req.body.to;
+    var email = req.body.Email;
 
     var myUrl = new URL("https://blue-sellapi.tugo.com/monitor/api/list/report?fromTime=&toTime=");
 
@@ -38,7 +50,7 @@ router.get('/', function (req, res, next) {
 
             var data = {
                 template: {
-                    'shortid': 'BJFAdngHm'
+                    'shortid': 'H1d3pbWSQ'
                 },
                 data: response
             };
@@ -51,8 +63,9 @@ router.get('/', function (req, res, next) {
 
             request(options)
                 .pipe(fs.createWriteStream('policy failure.xlsx')).on('finish', function () {
-                sendEmail(startDate, endDate);
-                res.render('policyFailure', { title: 'Policy failure report from ' + startDate + ' to ' + endDate + " send out" });
+                sendEmail(startDate, endDate, email);
+                // res.render('policyFailure', {title: 'Policy failure report from ' + startDate + ' to ' + endDate + " send out"});
+                res.render('finishPage');
             })
                 .on('error', function (err) {
                     console.log(err.message);
@@ -65,14 +78,13 @@ router.get('/', function (req, res, next) {
         .catch(function (error) {
             console.log(error)
         })
-
 });
 
-  function sendEmail(start, end) {
+  function sendEmail(start, end,email) {
     var data = fs.readFileSync('./policy failure.xlsx');
 
     const msg = {
-        to: 'mliu@tugo.com',
+        to: email,
         from: 'test@tugo.com',
         subject: 'Policy transfer failures report from ' + start + ' to ' + end,
         text: 'The attachment contains policy transfer failures for both sides from ' + start + ' to ' + end,
