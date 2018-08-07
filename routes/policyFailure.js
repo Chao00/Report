@@ -7,6 +7,7 @@ var fs = require('fs');
 var URL = require('url').URL;
 
 var config = JSON.parse(fs.readFileSync("config.json"));
+var POLICY_FAILURE_URL = JSON.parse(fs.readFileSync("URLS.json"));
 
 sgMail.setApiKey(config.API_KEY);
 
@@ -28,7 +29,7 @@ router.post('/',function (req, res, next) {
     var endDate = req.body.to;
     var email = req.body.Email;
 
-    var myUrl = new URL("https://blue-sellapi.tugo.com/monitor/api/list/report?fromTime=&toTime=");
+    var myUrl = new URL(POLICY_FAILURE_URL.POLICY_FAILURE);
 
     console.log(myUrl.href);
     myUrl.searchParams.set('fromTime', startDate);
@@ -50,7 +51,7 @@ router.post('/',function (req, res, next) {
 
             var data = {
                 template: {
-                    'shortid': 'H1d3pbWSQ'
+                    'shortid': 'ByEkbowSX'
                 },
                 data: response
             };
@@ -64,7 +65,6 @@ router.post('/',function (req, res, next) {
             request(options)
                 .pipe(fs.createWriteStream('policy failure.xlsx')).on('finish', function () {
                 sendEmail(startDate, endDate, email);
-                // res.render('policyFailure', {title: 'Policy failure report from ' + startDate + ' to ' + endDate + " send out"});
                 res.render('finishPage');
             })
                 .on('error', function (err) {
