@@ -12,14 +12,14 @@ var POLICY_FAILURE_URL = JSON.parse(fs.readFileSync("URLS.json"));
 sgMail.setApiKey(config.API_KEY);
 
 /* GET users listing. */
-router.get('/', function (req, res, next) {
+router.get('/', function (req, res) {
 
     res.render('firstPage');
-//     res.render('finishPage')
+    // res.render('finishPage')
 
 });
 
-router.post('/',function (req, res, next) {
+router.post('/',function (req, res) {
     console.log(req.body.Email);
     console.log(req.body.from);
     console.log(req.body.to);
@@ -51,7 +51,7 @@ router.post('/',function (req, res, next) {
 
             var data = {
                 template: {
-                    'shortid': 'ByEkbowSX'
+                    'shortid': 'Sy27lZtSm'
                 },
                 data: response
             };

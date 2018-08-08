@@ -10,7 +10,7 @@ var config = JSON.parse(fs.readFileSync("config.json"));
 
 sgMail.setApiKey(config.API_KEY);
 
-router.get('/', function (req, res, next) {
+router.get('/', function (req, res) {
     var startDate = req.query.from;
     var endDate = req.query.to;
 
