@@ -12,7 +12,7 @@
 </head>
 <body>
 <div class="login">
-    <h1>Policy transfer report</h1>
+    <h1><%= title%></h1>
 
     <form method="post">
         <input type="Email" name="Email" placeholder="Email to receive the report" required="required"/>
@@ -25,6 +25,7 @@
         <label for="to">To</label>
         <input type="date" name="to" id="to" required="required"/>
 
+        <% if(title === "Policy transfer report"){ %>
         <p id="selectOne">
             <select name="options">
                 <option>Send both if not specified</option>
@@ -32,6 +33,9 @@
                 <option>V2P-POLICY-TRANSFER-STATUS</option>
             </select>
         </p>
+        <% } %>
+
+
 
         <button type="submit" class="btn btn-primary btn-block btn-large">Generate report</button>
     </form>
@@ -58,8 +62,8 @@
                     Options
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#">Policy transfer failures</a>
-                    <a class="dropdown-item" href="#">Missing products setup</a>
+                    <a class="dropdown-item" href="/policyFailure">Policy transfer failures</a>
+                    <a class="dropdown-item" href="/missingProduct">Missing products setup</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#">Top 5 issues occurred</a>
                 </div>

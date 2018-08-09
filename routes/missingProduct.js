@@ -7,14 +7,26 @@ var fs = require('fs');
 var URL = require('url').URL;
 
 var config = JSON.parse(fs.readFileSync("config.json"));
+var POLICY_FAILURE_URL = JSON.parse(fs.readFileSync("URLS.json"));
 
 sgMail.setApiKey(config.API_KEY);
 
 router.get('/', function (req, res) {
-    var startDate = req.query.from;
-    var endDate = req.query.to;
 
-    var myUrl = new URL("https://blue-sellapi.tugo.com/monitor/api/list/report?monitorType=P2V-POLICY-TRANSFER-STATUS&fromTime=&toTime=");
+    res.render('firstPage', {title: "Missing products setup"})
+
+});
+
+router.post('/',function (req, res) {
+    console.log(req.body.Email);
+    console.log(req.body.from);
+    console.log(req.body.to);
+
+    var startDate = req.body.from;
+    var endDate = req.body.to;
+    var email = req.body.Email;
+
+    var myUrl = new URL(POLICY_FAILURE_URL.POLICY_FAILURE);
 
     myUrl.searchParams.set('fromTime', startDate);
     myUrl.searchParams.set('toTime', endDate);
@@ -25,7 +37,6 @@ router.get('/', function (req, res) {
         url: myUrl,
         json: true
     };
-    // console.log(external.url);
     var result = [];
 
     rp(external)
@@ -43,7 +54,7 @@ router.get('/', function (req, res) {
 
             var data = {
                 template: {
-                    'shortid': 'ryHCxOJSQ'
+                    'shortid': 'Hy2nESqS7'
                 },
                 data: finalResult
             };
@@ -54,12 +65,15 @@ router.get('/', function (req, res) {
                 json: data
             };
 
-            request(options)
+            request(options).on('error',function (error) {
+                res.render('error', {error: error});
+            })
                 .pipe(fs.createWriteStream('missing product setup in Atlas.xlsx')).on('finish', function () {
-                sendEmail(startDate, endDate);
-                res.render('missingProduct', { title: 'Missing products setup in Atlas from ' + startDate + ' to ' + endDate + " send out" });
+                sendEmail(startDate, endDate,email);
+                res.render('finishPage');
             })
                 .on('error', function (err) {
+                    res.render('error', {error: err});
                     console.log(err.message);
                 });
 
@@ -68,17 +82,18 @@ router.get('/', function (req, res) {
 
         })
         .catch(function (error) {
+            res.render('error',{error: error});
             console.log(error)
         });
 
 });
 
 
-function sendEmail(start, end) {
+function sendEmail(start, end,email) {
     var data = fs.readFileSync('./missing product setup in Atlas.xlsx');
 
     const msg = {
-        to: 'czha@tugo.com',
+        to: email,
         from: 'test@tugo.com',
         subject: 'Missing product setup in Atlas from ' + start + ' to ' + end,
         text: 'The attachment contains missing products setup in Atlas from ' + start + ' to ' + end,

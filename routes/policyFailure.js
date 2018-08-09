@@ -15,7 +15,7 @@ var side;
 /* GET users listing. */
 router.get('/', function (req, res) {
 
-    res.render('firstPage');
+    res.render('firstPage',{title: "Policy transfer report"});
     // res.render('finishPage')
 
 });
@@ -59,7 +59,7 @@ router.post('/',function (req, res) {
 
             var data = {
                 template: {
-                    'shortid': 'ry1Nml5rQ'
+                    'shortid': 'SJULSH9H7'
                 },
                 data: response
             };
