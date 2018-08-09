@@ -10,6 +10,7 @@ var usersRouter = require('./routes/users');
 var policyFailureReport = require('./routes/policyFailure');
 var email = require('./routes/email');
 var missingProduct = require('./routes/missingProduct');
+var notFound = require('./routes/notFound');
 
 var app = express();
 
@@ -18,7 +19,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 //Body Parser Middleware
-app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
 app.use(logger('dev'));
@@ -32,6 +33,7 @@ app.use('/users', usersRouter);
 app.use('/policyFailure',policyFailureReport);
 app.use('/email',email);
 app.use('/missingProduct',missingProduct);
+app.use('*',notFound);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -54,4 +56,5 @@ app.use(function(err, req, res, next) {
 app.listen(3000,function () {
   console.log('Server started on port 3000...');
 });
+
 module.exports = app;
