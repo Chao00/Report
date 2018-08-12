@@ -3,16 +3,24 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
-var indexRouter = require('./routes/index');
+
+// var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var policyFailureReport = require('./routes/policyFailure');
-var email = require('./routes/email');
+
 var missingProduct = require('./routes/missingProduct');
 var notFound = require('./routes/notFound');
+var about = require('./routes/about');
+
+// var PolicyFailure = require('./models/policyFailure');
 
 var app = express();
+
+//mongodb
+mongoose.connect("mongodb://localhost/report");
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -33,6 +41,7 @@ app.use('/users', usersRouter);
 // app.use('/policyFailure',policyFailureReport);
 app.use('/', policyFailureReport);
 app.use('/missingProduct',missingProduct);
+app.use('/about',about);
 app.use('*',notFound);
 
 // catch 404 and forward to error handler
@@ -56,5 +65,19 @@ app.use(function(err, req, res, next) {
 app.listen(3000,function () {
   console.log('Server started on port 3000...');
 });
+
+// PolicyFailure.create({
+//     "id": "TMI3280810",
+//     "partnerId": "BCA075",
+//     "type": "P2V-POLICY-TRANSFER-STATUS",
+//     "status": 200,
+//     "error": "Error + Renew policy TMI3280810-1, however cannot find the corresponding source policy TMI3009675-5.. "
+// },function (err,policy) {
+//     if (err){
+//         console.log(err)
+//     }else{
+//         console.log(policy)
+//     }
+// });
 
 module.exports = app;
