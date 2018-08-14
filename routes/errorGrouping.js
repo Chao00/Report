@@ -5,7 +5,7 @@ var rp = require('request-promise');
 const sgMail = require('@sendgrid/mail');
 var fs = require('fs');
 var URL = require('url').URL;
-var dateFormat = require('dateformat');
+// var dateFormat = require('dateformat');
 
 var config = JSON.parse(fs.readFileSync("config.json"));
 var POLICY_FAILURE_URL = JSON.parse(fs.readFileSync("URLS.json"));
@@ -21,11 +21,6 @@ router.get('/', function (req, res) {
 });
 
 router.post('/', function (req, res) {
-    console.log(req.body.Email);
-    console.log(req.body.from);
-    console.log(req.body.to);
-    console.log(req.body.options);
-
     var startDate = req.body.from;
     var endDate = req.body.to;
     var email = req.body.Email;
@@ -39,8 +34,7 @@ router.post('/', function (req, res) {
 
     var myUrl = new URL(POLICY_FAILURE_URL.ERROR_GROUPING);
 
-
-    var parsedDate = new Date(Date.parse(startDate)).toString().toString();
+    var parsedDate = new Date(Date.parse(startDate)).toString();
 
     var lastIndex = parsedDate.lastIndexOf('-');
     console.log(parsedDate.substring(lastIndex+1,lastIndex+5));
@@ -48,7 +42,7 @@ router.post('/', function (req, res) {
 
     var start = new Date(startDate).toISOString();
     var end = new Date(endDate).toISOString();
-    start = start.replace('.','-').substring(0,start.length-4).concat(timeZone);
+    start = start.replace('.','-').substring(0,start.length-4).concat(timeZone);//format the date to ie:2018-08-13T10:46:05-0700
     end = end.replace('.','-').substring(0,end.length-4).concat(timeZone);
 
     console.log(start);
@@ -124,7 +118,6 @@ function sendEmail(start, end, email) {
     sgMail.send(msg, function (err, res) {
         if (err) {
             console.log(err);
-            // res.render('error',{error:err})
         }
         console.log("Email sent")
 
