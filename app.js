@@ -13,6 +13,8 @@ var policyFailureReport = require('./routes/policyFailure');
 var missingProduct = require('./routes/missingProduct');
 var notFound = require('./routes/notFound');
 var about = require('./routes/about');
+var frequentError = require('./routes/frequent');
+var errorGrouping = require("./routes/errorGrouping");
 
 // var PolicyFailure = require('./models/policyFailure');
 
@@ -42,6 +44,8 @@ app.use('/users', usersRouter);
 app.use('/', policyFailureReport);
 app.use('/missingProduct',missingProduct);
 app.use('/about',about);
+app.use('/frequent',frequentError);
+app.use("/errorGrouping",errorGrouping);
 app.use('*',notFound);
 
 // catch 404 and forward to error handler
