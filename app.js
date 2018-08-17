@@ -15,6 +15,7 @@ var notFound = require('./routes/notFound');
 var about = require('./routes/about');
 var frequentError = require('./routes/frequent');
 var errorGrouping = require("./routes/errorGrouping");
+var retry = require("./routes/retryFailed");
 
 // var PolicyFailure = require('./models/policyFailure');
 
@@ -46,6 +47,7 @@ app.use('/missingProduct',missingProduct);
 app.use('/about',about);
 app.use('/frequent',frequentError);
 app.use("/errorGrouping",errorGrouping);
+app.use("/retryFailed",retry);
 app.use('*',notFound);
 
 // catch 404 and forward to error handler

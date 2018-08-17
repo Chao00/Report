@@ -65,7 +65,7 @@ router.post('/', function (req, res) {
 
             var data = {
                 template: {
-                    'shortid': 'SJo2Zi1LX'
+                    'shortid': 'rkdo2CxL7'
                 },
                 data: response
             };
@@ -102,7 +102,7 @@ function sendEmail(start, end, email) {
     var data = fs.readFileSync('./errorGrouping.xlsx');
 
     const msg = {
-        to: email,
+        to: [email],
         from: 'test@tugo.com',
         subject: 'Error grouping from' + start + ' to ' + end,
         text: 'The attachment contains error grouping report for ' + side + ' from '+ start + ' to ' + end,
