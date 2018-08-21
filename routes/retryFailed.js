@@ -2,18 +2,21 @@ var express = require('express');
 var router = express.Router();
 var request = require('request');
 var rp = require('request-promise');
-
+const sgMail = require('@sendgrid/mail');
 
 var fs = require('fs');
 var URL = require('url').URL;
 var POLICY_FAILURE_URL = JSON.parse(fs.readFileSync("URLS.json"));
+var config = JSON.parse(fs.readFileSync("config.json"));
+sgMail.setApiKey(config.API_KEY);
+
+var side;
 
 router.get('/', function (req, res) {
     res.render('firstPage', {title: "Retry Failed"})
-    // filterFinalPolicyFailures.then(function (value) { console.log(value) })
 });
 
-router.post('/',  function (req, res) {
+router.post('/', function (req, res) {
     console.log(req.body.Email);
     console.log(req.body.from);
     console.log(req.body.to);
@@ -23,8 +26,7 @@ router.post('/',  function (req, res) {
     var endDate = req.body.to;
     var email = req.body.Email;
     var option = req.body.options;
-    var side = option;
-    var count = 0;
+    side = option;
 
     if (option === 'Send both if not specified') {
         option = ''
@@ -48,18 +50,78 @@ router.post('/',  function (req, res) {
         json: true
     };
 
-    getFilteredPolicies(failure,policySearchTestUrl)
+    rp(failure).then(function (response) {
 
-//todo add promise!!!!
+        getFilteredPolicies(response, policySearchTestUrl).then(function (results) {
+            var policies = {"content": results};
+            // console.log(results)
+            var data = {
+                template: {
+                    'shortid': 'rkEe3cOUX'
+                },
+                data: policies
+            };
+
+            var options = {
+                url: 'http://localhost:8001/api/report',
+                method: 'POST',
+                json: data
+            };
+
+            request(options).on('error', function (error) {
+                res.render('error', {error: error});
+            })
+                .pipe(fs.createWriteStream('Final policy failure.xlsx')).on('finish', function () {
+                res.render('finishPage');
+                sendEmail(startDate, endDate, email);
+            })
+                .on('error', function (err) {
+                    res.render('error', {error: err});
+                    console.log(err.message);
+                });
+
+
+            console.log("finish write in file!!");
+        }).catch(function (err) {
+            console.log(err);
+            res.render('error', {error: err});
+        })
+
+    }).catch(function (err) {
+        console.log(err);
+        res.render('error', {error: err});
+    })
 
 });
-function getFilteredPolicies(failure,policySearchTestUrl) {
 
-    rp(failure).then(function (response) {
-        var policies = response.content; //an array of policy failures
-        policies.forEach(async function (policy) {
-            // var policy = policies[0];
-            // console.log(policy);
+function getFilteredPolicies(policies, policySearchTestUrl) {
+
+    //an array of policy failures
+    return new Promise(async function (resolve, reject) {
+        // policies.forEach( async function (policy) {
+        //     // var policy = policies[0];
+        //     // console.log(policy);
+        //     var policyNumber = extractPolicyNumber(policy.id);
+        //     var type = policy.type;
+        //     var policyDate = policy.time;
+        //
+        //
+        //     policySearchTestUrl.searchParams.set('monitorType', type);
+        //     policySearchTestUrl.searchParams.set('policyNumber', policyNumber);
+        //
+        //     var search = {
+        //         method: 'GET',
+        //         url: policySearchTestUrl,
+        //         json: true
+        //     };
+        //
+        //     results = await getFinalResults(search, policy, policyDate);
+        //     console.log(results)
+        //
+        // });
+        // var policies = response.content;
+        for (var i = 0; i < policies.length; i++) {
+            var policy = policies[i];
             var policyNumber = extractPolicyNumber(policy.id);
             var type = policy.type;
             var policyDate = policy.time;
@@ -74,124 +136,51 @@ function getFilteredPolicies(failure,policySearchTestUrl) {
                 json: true
             };
 
-           var returned = getFinalResults(search,policy,policyDate);
-           console.log(returned);
-        });
-        // console.log(policies);
-    })
+            // results.push(await getFinalResults(search, policy, policyDate));
+            await getFinalResults(search, policy, policyDate).catch(function (err) {
+                reject(err);
+            })
+        }
+        resolve(policies)
+    });
+
 }
-function getFinalResults(searchUrl,policy,policyDate) {
+
+function getFinalResults(searchUrl, policy, policyDate) {
     return new Promise(function (resolve, reject) {
 
         request(searchUrl, function (err, res, body) {
-            var searchedPolicies = body.content; //an array of a specific policy with different histories
-            // console.log(searchedPolicies);
-            searchedPolicies.forEach(function (searchedPolicy) {
-                var id = searchedPolicy.id;
+            if (err){
+                reject(err)
+            }
+            else {
+                var searchedPolicies = body.content; //an array of a specific policy with different histories
+                // console.log(searchedPolicies);
+                searchedPolicies.forEach(function (searchedPolicy) {
+                    var id = searchedPolicy.id;
 
-                var policyNumber = extractPolicyNumberFromIdWithVersion(id);
-                var dateToCompare = extractTimeFromId(id);
-                var status = searchedPolicy.status;
-                // console.log(policyNumber);
-                // console.log(dateToCompare);
-                // console.log(status);
-                if (policyNumber === policy.id) {
-                    if (compareDate(policyDate, dateToCompare)) {
-                        if (status === 200) { // todo need to think about it
-                            policy.retryStatus = true;
+                    var policyNumber = extractPolicyNumberFromIdWithVersion(id);
+                    var dateToCompare = extractTimeFromId(id);
+                    var status = searchedPolicy.status;
+                    // console.log(policyNumber);
+                    // console.log(dateToCompare);
+                    // console.log(status);
+                    if (policyNumber === policy.id) {
+                        if (compareDate(policyDate, dateToCompare)) {
+                            if (status === 200) { // todo need to think about it
+                                policy.retryStatus = true;
+                            }
                         }
                     }
-                }
 
-            });
-            resolve(policy);
+                });
+                resolve(policy);
+            }
             // console.log(policy);
         });
 
     });
-    // filterFinalPolicyFailures.then(function (value) { console.log(value) })
-
 }
-
-//     rp(failure).then(function (response) {
-//         var policies = response.content; //an array of policy failures
-//         policies.forEach(function (policy) {
-//             // var policy = policies[0];
-//             // console.log(policy);
-//             var policyNumber = extractPolicyNumber(policy.id);
-//             var type = policy.type;
-//             var policyDate = policy.time;
-//
-//
-//             policySearchTestUrl.searchParams.set('monitorType', type);
-//             policySearchTestUrl.searchParams.set('policyNumber', policyNumber);
-//
-//             var search = {
-//                 method: 'GET',
-//                 url: policySearchTestUrl,
-//                 json: true
-//             };
-// //todo option1: wrap this part into a async function and await till it finishes, not sure if that gonna affect the performance
-// //todo          because it needs to await for every loop  || await only works inside async function.
-// //todo option2: use promise, need to do research first!!!
-//             request(search, function (err, res, body) {
-//                 var searchedPolicies = body.content; //an array of a specific policy with different histories
-//                 // console.log(searchedPolicies);
-//                 searchedPolicies.forEach(function (searchedPolicy) {
-//                     var id = searchedPolicy.id;
-//
-//                     var policyNumber = extractPolicyNumberFromIdWithVersion(id);
-//                     var dateToCompare = extractTimeFromId(id);
-//                     var status = searchedPolicy.status;
-//                     // console.log(policyNumber);
-//                     // console.log(dateToCompare);
-//                     // console.log(status);
-//                     if (policyNumber === policy.id) {
-//                         if (compareDate(policyDate, dateToCompare)) {
-//                             if (status === 200) { // todo need to think about it
-//                                 policy.retryStatus = true;
-//                             }
-//                         }
-//                     }
-//                 });
-//                 count++;
-//                 // console.log(policy);
-//             });
-// //todo =================================================================================================================
-//         });
-// var data = {
-//     template: {
-//         'shortid': 'SJULSH9H7'
-//     },
-//     data: policies
-// };
-//
-// var options = {
-//     url: 'http://localhost:8001/api/report',
-//     method: 'POST',
-//     json: data
-// };
-//
-// request(options).on('error',function (error) {
-//     res.render('error', {error: error});
-// })
-//     .pipe(fs.createWriteStream('Final policy failure.xlsx')).on('finish', function () {
-//     sendEmail(startDate, endDate, email);
-//     res.render('finishPage');
-// })
-//     .on('error', function (err) {
-//         res.render('error', {error: err});
-//         console.log(err.message);
-//     });
-//
-//
-// console.log("finish write in file!!");
-
-// })
-// setTimeout(function () {
-//     console.log(count)
-// },15000)
-// });
 
 function compareDate(policyDate, dateToCompare) {
     var date1 = parseDate(policyDate);
@@ -234,7 +223,8 @@ function sendEmail(start, end, email) {
         to: email,
         from: 'test@tugo.com',
         subject: 'Final policy transfer failures report from ' + start + ' to ' + end,
-        text: 'The attachment contains the final version of policy transfer failures for ' + side + ' from ' + start + ' to ' + end,
+        text: 'Hi, ' +
+        'The attachment contains the final version of policy transfer failures for ' + side + ' from ' + start + ' to ' + end,
         attachments: [
             {
                 content: new Buffer(data).toString('base64'),
@@ -244,7 +234,7 @@ function sendEmail(start, end, email) {
             }
         ]
     };
-    sgMail.send(msg, function (res, err) {
+    sgMail.send(msg, function (err, res) {
         if (err) {
             console.log(err);
             res.render('error', {error: err})
