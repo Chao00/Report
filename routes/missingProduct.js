@@ -54,13 +54,13 @@ router.post('/',function (req, res) {
 
             var data = {
                 template: {
-                    'shortid': 'Hy2nESqS7'
+                    'shortid': 'BJ8POGsL7'
                 },
                 data: finalResult
             };
 
             var options = {
-                url: 'http://localhost:8001/api/report',
+                url: 'https://limitless-reef-70205.herokuapp.com/api/report',
                 method: 'POST',
                 json: data
             };

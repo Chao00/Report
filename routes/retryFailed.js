@@ -17,6 +17,7 @@ router.get('/', function (req, res) {
 });
 
 router.post('/', function (req, res) {
+    // res.render('finishPage')
     console.log(req.body.Email);
     console.log(req.body.from);
     console.log(req.body.to);
@@ -33,37 +34,37 @@ router.post('/', function (req, res) {
     }
     side = sideDetection(side);
 
-    var policyFailureUrl = new URL(POLICY_FAILURE_URL.POLICY_FAILURE);
+    var policyFailureUrl = new URL(POLICY_FAILURE_URL.POLICY_FAILURE_WITH_VERSION_AND_DATE);
     var policySearchUrl = new URL(POLICY_FAILURE_URL.POLICY_SEARCH);
-    var policyFailureTestUrl = new URL((POLICY_FAILURE_URL.POLICY_FAILURE_TEST));
-    var policySearchTestUrl = new URL(POLICY_FAILURE_URL.POLICY_SEARCH_TEST);
+    // var policyFailureTestUrl = new URL((POLICY_FAILURE_URL.POLICY_FAILURE_TEST));
+    // var policySearchTestUrl = new URL(POLICY_FAILURE_URL.POLICY_SEARCH_TEST);
 
     // console.log(policyFailureUrl.href);
-    policyFailureTestUrl.searchParams.set('fromTime', startDate);
-    policyFailureTestUrl.searchParams.set('toTime', endDate);
-    policyFailureTestUrl.searchParams.set('monitorType', option);
+    policyFailureUrl.searchParams.set('fromTime', startDate);
+    policyFailureUrl.searchParams.set('toTime', endDate);
+    policyFailureUrl.searchParams.set('monitorType', option);
     // console.log(policyFailureUrl.href);
 
     const failure = {
         method: 'GET',
-        url: policyFailureTestUrl,
+        url: policyFailureUrl,
         json: true
     };
 
     rp(failure).then(function (response) {
 
-        getFilteredPolicies(response, policySearchTestUrl).then(function (results) {
+        getFilteredPolicies(response, policySearchUrl).then(function (results) {
             var policies = {"content": results};
             // console.log(results)
             var data = {
                 template: {
-                    'shortid': 'rkEe3cOUX'
+                    'shortid': 'rJBuafsIm'
                 },
                 data: policies
             };
 
             var options = {
-                url: 'http://localhost:8001/api/report',
+                url: 'https://limitless-reef-70205.herokuapp.com/api/report',
                 method: 'POST',
                 json: data
             };

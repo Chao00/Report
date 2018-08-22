@@ -40,7 +40,7 @@ router.post('/',function (req, res) {
 
     var myUrl = new URL(POLICY_FAILURE_URL.POLICY_FAILURE);
 
-    console.log(myUrl.href);
+    // console.log(myUrl.href);
     myUrl.searchParams.set('fromTime', startDate);
     myUrl.searchParams.set('toTime', endDate);
     myUrl.searchParams.set('monitorType',option);
@@ -59,13 +59,13 @@ router.post('/',function (req, res) {
 
             var data = {
                 template: {
-                    'shortid': 'SJULSH9H7'
+                    'shortid': 'Bk3UUzsUX'
                 },
                 data: response
             };
 
             var options = {
-                url: 'http://localhost:8001/api/report',
+                url: 'https://limitless-reef-70205.herokuapp.com/api/report',
                 method: 'POST',
                 json: data
             };
@@ -109,7 +109,7 @@ router.post('/',function (req, res) {
             }
         ]
     };
-    sgMail.send(msg, function (res,err) {
+    sgMail.send(msg, function (err,res) {
         if (err) {
             console.log(err);
             res.render('error',{error:err})
