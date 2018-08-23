@@ -2,6 +2,7 @@
 sendgrid.env
 config.json
 URLS.json
+node_modules/
 "policy failure.xlsx"
 "missing sttproduct setup in Atlas.xlsx"
 "errorGrouping.xlsx"
