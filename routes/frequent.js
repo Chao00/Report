@@ -35,7 +35,7 @@ router.get('/', function(req, res) {
 
         }).then(function () {
             console.log('finish write in db!');
-            res.render('finishPage');
+        res.render('finishPage',{status:""});
     })
         .catch(function (error) {
         res.render('error',{error: error});

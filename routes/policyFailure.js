@@ -75,7 +75,7 @@ router.post('/',function (req, res) {
             })
                 .pipe(fs.createWriteStream('policy failure.xlsx')).on('finish', function () {
                 sendEmail(startDate, endDate, email);
-                res.render('finishPage');
+                res.render('finishPage',{status:""});
             })
                 .on('error', function (err) {
                     res.render('error', {error: err});

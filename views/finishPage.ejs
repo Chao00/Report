@@ -14,7 +14,11 @@
                                 stroke-dasharray="12.2175,12.2175" cx="80.6" cy="80.6" r="73.9"/>
                     </svg>
                 </div>
+                <% if(status === "wait") { %>
+                <h1>Report will be sent to you shortly !</h1>
+                <% } else { %>
                 <h1>Report has been sent!</h1>
+                <% } %>
             </div>
         </div>
     </div>

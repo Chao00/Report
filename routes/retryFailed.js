@@ -17,7 +17,7 @@ router.get('/', function (req, res) {
 });
 
 router.post('/', function (req, res) {
-    // res.render('finishPage')
+    res.render('finishPage',{status:"wait"});
     console.log(req.body.Email);
     console.log(req.body.from);
     console.log(req.body.to);
@@ -73,7 +73,7 @@ router.post('/', function (req, res) {
                 res.render('error', {error: error});
             })
                 .pipe(fs.createWriteStream('Final policy failure.xlsx')).on('finish', function () {
-                res.render('finishPage');
+                // res.render('finishPage');
                 sendEmail(startDate, endDate, email);
             })
                 .on('error', function (err) {
