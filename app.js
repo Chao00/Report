@@ -7,7 +7,6 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 
 // var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 var policyFailureReport = require('./routes/policyFailure');
 
 var missingProduct = require('./routes/missingProduct');
@@ -41,7 +40,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // app.use('/', indexRouter);
-app.use('/users', usersRouter);
+
 // app.use('/policyFailure',policyFailureReport);
 app.use('/', policyFailureReport);
 app.use('/missingProduct',missingProduct);

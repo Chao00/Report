@@ -3,7 +3,7 @@ var router = express.Router();
 var request = require('request');
 var rp = require('request-promise');
 const sgMail = require('@sendgrid/mail');
-
+var json2xls = require('json2xls');
 var fs = require('fs');
 var URL = require('url').URL;
 var POLICY_FAILURE_URL = JSON.parse(fs.readFileSync("URLS.json"));
@@ -11,13 +11,14 @@ var config = JSON.parse(fs.readFileSync("config.json"));
 sgMail.setApiKey(config.API_KEY);
 
 var side;
-
+var JS_REPORT_TEST = POLICY_FAILURE_URL.JS_REPORT_TEST;
+var JS_REPORT = POLICY_FAILURE_URL.JS_REPORT;
 router.get('/', function (req, res) {
     res.render('firstPage', {title: "Retry Failed"})
 });
 
 router.post('/', function (req, res) {
-    res.render('finishPage',{status:"wait"});
+    res.render('finishPage', {status: "wait"});
     console.log(req.body.Email);
     console.log(req.body.from);
     console.log(req.body.to);
@@ -54,35 +55,69 @@ router.post('/', function (req, res) {
     rp(failure).then(function (response) {
 
         getFilteredPolicies(response, policySearchUrl).then(function (results) {
-            var policies = {"content": results};
-            // console.log(results)
-            var data = {
-                template: {
-                    'shortid': 'rJBuafsIm'
+
+            var http = require('http'),
+                url = require('url'),
+                options = {
+                    method: 'HEAD',
+                    host: url.parse(JS_REPORT_TEST).host,
+                    port: 80,
+                    path: url.parse(JS_REPORT_TEST).pathname
                 },
-                data: policies
-            };
+                testAPI = http.request(options, function (r) {
+                    jsReport = JSON.stringify(r.statusCode);
+                    console.log(jsReport);
 
-            var options = {
-                url: 'https://limitless-reef-70205.herokuapp.com/api/report',
-                method: 'POST',
-                json: data
-            };
+                    if (jsReport === '200') {
+                        console.log('js report server is up, using js report to generate excel');
+                        var policies = {"content": results};
+                        // console.log(results)
+                        var data = {
+                            template: {
+                                'shortid': 'rJBuafsIm'
+                            },
+                            data: policies
+                        };
 
-            request(options).on('error', function (error) {
-                res.render('error', {error: error});
-            })
-                .pipe(fs.createWriteStream('Final policy failure.xlsx')).on('finish', function () {
-                // res.render('finishPage');
-                sendEmail(startDate, endDate, email);
-            })
-                .on('error', function (err) {
-                    res.render('error', {error: err});
-                    console.log(err.message);
+                        var options = {
+                            url: JS_REPORT,
+                            method: 'POST',
+                            json: data
+                        };
+
+                        request(options).on('error', function (error) {
+                            res.render('error', {error: error});
+                        })
+                            .pipe(fs.createWriteStream('Final policy failure.xlsx')).on('finish', function () {
+                            // res.render('finishPage');
+                            sendEmail(startDate, endDate, email);
+                        })
+                            .on('error', function (err) {
+                                res.render('error', {error: err});
+                                console.log(err.message);
+                            });
+
+
+                        console.log("finish write in file!!");
+                    } else {
+                        console.log('js report server is down, using the normal excel generation instead');
+                        try {
+                            var xls = json2xls(results,{fields:['id','partnerId','type','status','retryStatus','error']});
+                            fs.writeFileSync('Final policy failure.xlsx', xls, 'binary');
+                        } catch (error) {
+                            console.log(error);
+                            res.render('error');
+                        }
+                        sendEmail(startDate, endDate, email);
+
+                        console.log("finish write in file!!");
+                    }
                 });
+            testAPI.on('error', (e) => {
+                console.error('problem with request: ' + e.message);
+            });
+            testAPI.end();
 
-
-            console.log("finish write in file!!");
         }).catch(function (err) {
             console.log(err);
             res.render('error', {error: err});
@@ -97,30 +132,8 @@ router.post('/', function (req, res) {
 
 function getFilteredPolicies(policies, policySearchTestUrl) {
 
-    //an array of policy failures
     return new Promise(async function (resolve, reject) {
-        // policies.forEach( async function (policy) {
-        //     // var policy = policies[0];
-        //     // console.log(policy);
-        //     var policyNumber = extractPolicyNumber(policy.id);
-        //     var type = policy.type;
-        //     var policyDate = policy.time;
-        //
-        //
-        //     policySearchTestUrl.searchParams.set('monitorType', type);
-        //     policySearchTestUrl.searchParams.set('policyNumber', policyNumber);
-        //
-        //     var search = {
-        //         method: 'GET',
-        //         url: policySearchTestUrl,
-        //         json: true
-        //     };
-        //
-        //     results = await getFinalResults(search, policy, policyDate);
-        //     console.log(results)
-        //
-        // });
-        // var policies = response.content;
+
         for (var i = 0; i < policies.length; i++) {
             var policy = policies[i];
             var policyNumber = extractPolicyNumber(policy.id);
@@ -151,7 +164,7 @@ function getFinalResults(searchUrl, policy, policyDate) {
     return new Promise(function (resolve, reject) {
 
         request(searchUrl, function (err, res, body) {
-            if (err){
+            if (err) {
                 reject(err)
             }
             else {
