@@ -1,4 +1,6 @@
 # Auto Report Generation
 ## Description
-The purpose of this project is to generate different types of error report for policy sync between Atlas and Phoenix.
-This program allows users to generate four types of report.
+The purpose of this project is to generate four different types of error report for policy sync between Atlas and Phoenix.<br/>
+1.Policy failure general report: ![Screen shot of policy failure general report](docs/policy%20failure%20general.PNG)
+
+
