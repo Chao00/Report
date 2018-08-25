@@ -1,5 +1,3 @@
 
-"policy failure.xlsx"
-"missing sttproduct setup in Atlas.xlsx"
-"errorGrouping.xlsx"
+*.xlsx
 node_modules
