@@ -39,9 +39,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use('/', indexRouter);
-
-// app.use('/policyFailure',policyFailureReport);
 app.use('/', policyFailureReport);
 app.use('/missingProduct',missingProduct);
 app.use('/about',about);
@@ -72,19 +69,5 @@ app.use(function(err, req, res, next) {
 app.listen(3000,function () {
   console.log('Server started on port 3000...');
 });
-
-// PolicyFailure.create({
-//     "id": "TMI3280810",
-//     "partnerId": "BCA075",
-//     "type": "P2V-POLICY-TRANSFER-STATUS",
-//     "status": 200,
-//     "error": "Error + Renew policy TMI3280810-1, however cannot find the corresponding source policy TMI3009675-5.. "
-// },function (err,policy) {
-//     if (err){
-//         console.log(err)
-//     }else{
-//         console.log(policy)
-//     }
-// });
 
 module.exports = app;
