@@ -19,12 +19,19 @@ cd atlas-policy-integ-report
 npm install
 npm start
 ```
-
+The application will be started at port 3000 if the environment variable 'PORT' is not being set.    
+Port can also be configured using command `PORT=3000 npm start`
 ##Technology
 * Node.js  npm
 * Express
 * jsreport https://jsreport.net/
 * Bootstrap4 https://getbootstrap.com/
+
+##Dependencies
+* sendgrid: Email provider https://app.sendgrid.com/
+  * 100 emails per day
+* jsreport: Report provider https://jsreport.net/
+* Heroku: Cloud platform for deploying jsreport https://dashboard.heroku.com
 
 ##Contributor
 Chao Zhang
