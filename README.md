@@ -7,9 +7,9 @@ The resulting excel:
 
 ##Prerequisites
 * Make sure you have node.js and npm installed.
-   * Go to https://nodejs.org/en/download/
-   * npm comes with node.js
-   * Once finish install node.js, you can run the command ` node -v ` and ` npm -v ` to check the version, if it show you the correct version then you are down with the installation.
+    * Go to https://nodejs.org/en/download/
+    * npm comes with node.js
+    * Once finish install node.js, you can run the command ` node -v ` and ` npm -v ` to check the version, if it show you the correct version then you are down with the installation.
    
 ##Installation
 
@@ -29,7 +29,7 @@ Port can also be configured using command `PORT=3000 npm start`
 
 ##Dependencies
 * sendgrid: Email provider https://app.sendgrid.com/
-  * 100 emails per day
+    * 100 emails per day
 * jsreport: Report provider https://jsreport.net/
 * Heroku: Cloud platform for deploying jsreport https://dashboard.heroku.com
 
