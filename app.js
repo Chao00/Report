@@ -2,27 +2,22 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var mongoose = require('mongoose');
-var bodyParser = require('body-parser');
 
+var bodyParser = require('body-parser');
+var winston = require('./config/winston');
+var morgan = require('morgan');
 // var indexRouter = require('./routes/index');
 var policyFailureReport = require('./routes/policyFailure');
 
 var missingProduct = require('./routes/missingProduct');
 var notFound = require('./routes/notFound');
 var about = require('./routes/about');
-var frequentError = require('./routes/frequent');
 var errorGrouping = require("./routes/errorGrouping");
 var retry = require("./routes/retryFailed");
 var finishPage = require("./routes/finish");
 
-// var PolicyFailure = require('./models/policyFailure');
 
 var app = express();
-
-//mongodb
-mongoose.connect("mongodb://localhost/report");
 
 
 // view engine setup
@@ -33,16 +28,15 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
-app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(morgan('combined', { stream: winston.stream }));
 app.use('/', policyFailureReport);
 app.use('/missingProduct',missingProduct);
 app.use('/about',about);
-app.use('/frequent',frequentError);
 app.use("/errorGrouping",errorGrouping);
 app.use("/retryFailed",retry);
 app.use("/finish",finishPage);
@@ -59,11 +53,13 @@ app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  var error = err;
+    // add this line to include winston logging
+    winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
-  // render the error page
+
+    // render the error page
   res.status(err.status || 500);
-  res.render('error',{error:error});
+  res.render('error');
 });
 
 

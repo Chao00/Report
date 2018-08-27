@@ -3,9 +3,18 @@ var winston = require('winston');
 
 // define the custom settings for each transport (file, console)
 var options = {
-    file: {
+    fileError: {
+        level: 'error',
+        filename: `${appRoot}/logs/error.log`,
+        handleExceptions: true,
+        json: true,
+        maxsize: 5242880, // 5MB
+        maxFiles: 5,
+        colorize: false,
+    },
+    fileInfo: {
         level: 'info',
-        filename: `${appRoot}/logs/app.log`,
+        filename: `${appRoot}/logs/combined.log`,
         handleExceptions: true,
         json: true,
         maxsize: 5242880, // 5MB
@@ -21,9 +30,10 @@ var options = {
 };
 
 // instantiate a new Winston Logger with the settings defined above
-var logger = new winston.Logger({
+var logger = winston.createLogger({
     transports: [
-        new winston.transports.File(options.file),
+        new winston.transports.File(options.fileError),
+        new winston.transports.File(options.fileInfo),
         new winston.transports.Console(options.console)
     ],
     exitOnError: false, // do not exit on handled exceptions
